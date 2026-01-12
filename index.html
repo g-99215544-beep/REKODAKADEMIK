@@ -1,277 +1,339 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html>
 <head>
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Rekod Prestasi Murid</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #EFF6FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        .animate-spin {
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { 
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            color: white;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; }
+        .content { padding: 24px; }
+        .section { margin-bottom: 24px; }
+        .label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        .input-group { display: flex; gap: 8px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #2563EB; color: white; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-success { background: #10B981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-refresh { background: rgba(255,255,255,0.2); color: white; }
+        .btn-refresh:hover { background: rgba(255,255,255,0.3); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .class-btn {
+            padding: 12px;
+            background: #F3F4F6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .class-btn:hover { background: #E5E7EB; }
+        .class-btn.active { 
+            background: #2563EB;
+            color: white;
+            border-color: #1D4ED8;
+            transform: scale(1.05);
+        }
+        .tabs { display: flex; gap: 8px; border-bottom: 2px solid #E5E7EB; margin-bottom: 24px; }
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+        .student-list { display: flex; flex-direction: column; gap: 8px; }
+        .student-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .student-item:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .student-bil {
+            min-width: 32px;
+            font-weight: 700;
+            color: #2563EB;
+            font-size: 16px;
+        }
+        .student-name { flex: 1; color: #1F2937; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        thead { background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%); }
+        th { padding: 12px; text-align: left; color: white; font-weight: 600; font-size: 14px; }
+        td { padding: 12px; border-bottom: 1px solid #E5E7EB; }
+        tr:hover { background: #F9FAFB; }
+        .score-input {
+            width: 100%;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+        }
+        .score-input:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6B7280;
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        .spinner { 
+            display: inline-block;
             animation: spin 1s linear infinite;
         }
-        .tab-active {
-            border-bottom: 2px solid #2563eb;
-            color: #2563eb;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .gray-box {
+            background: #F9FAFB;
+            border-radius: 8px;
+            padding: 16px;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div id="app" class="p-6">
-        <!-- Main App Screen -->
-        <div class="max-w-6xl mx-auto">
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-3xl font-bold text-white">Sistem Rekod Prestasi Murid</h1>
-                        <button onclick="refreshAll()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg">
-                            <span id="refreshIcon">🔄</span> Refresh
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📚 Sistem Rekod Prestasi Murid</h1>
+                <button class="btn btn-refresh" onclick="refreshData()">
+                    <span id="refreshIcon">🔄</span> Refresh
+                </button>
+            </div>
+
+            <div class="content">
+                <!-- Add Class -->
+                <div class="section">
+                    <label class="label">Tambah Kelas Baru</label>
+                    <div class="input-group">
+                        <input type="text" id="newClassInput" placeholder="Nama kelas (cth: 5 Amanah)">
+                        <button class="btn btn-success" onclick="addClass()">➕ Tambah Kelas</button>
+                    </div>
+                </div>
+
+                <!-- Classes List -->
+                <div class="section">
+                    <label class="label">Pilih Kelas</label>
+                    <div id="classesList" class="grid">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #6B7280;">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div id="tabsSection" class="hidden">
+                    <div class="tabs">
+                        <button class="tab active" id="studentsTab" onclick="switchTab('students')">
+                            👥 Senarai Murid
+                        </button>
+                        <button class="tab" id="activityTab" onclick="switchTab('activity')">
+                            📅 Aktiviti Harian
                         </button>
                     </div>
                 </div>
 
-                <div class="p-6">
-                    <!-- Add Class Section -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tambah Kelas Baru</label>
-                        <div class="flex gap-2">
-                            <input
-                                type="text"
-                                id="newClassInput"
-                                placeholder="Nama kelas (cth: 5 Amanah)"
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                onkeypress="if(event.key==='Enter') addClass()"
-                            />
-                            <button
-                                onclick="addClass()"
-                                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                            >
-                                ➕ Tambah Kelas
+                <!-- Students Tab -->
+                <div id="studentsContent" class="hidden">
+                    <div class="section">
+                        <label class="label">Tambah Murid</label>
+                        <div class="input-group">
+                            <input type="text" id="newStudentInput" placeholder="Nama murid">
+                            <button class="btn btn-success" onclick="addStudent()">➕ Tambah Murid</button>
+                        </div>
+                    </div>
+
+                    <div class="gray-box">
+                        <label class="label" style="margin-bottom: 12px;">
+                            Senarai Murid (<span id="studentCount">0</span>)
+                        </label>
+                        <div id="studentsList" class="student-list"></div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div id="activityContent" class="hidden">
+                    <div class="section">
+                        <label class="label">Tambah Aktiviti Baru</label>
+                        <div class="input-group">
+                            <input type="text" id="newActivityInput" placeholder="Nama aktiviti (cth: Ujian Matematik)">
+                            <button class="btn btn-success" onclick="addActivity()">➕ Tambah Aktiviti</button>
+                        </div>
+                    </div>
+
+                    <div class="gray-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <label class="label" style="margin: 0;">Rekod Aktiviti</label>
+                            <button id="saveScoresBtn" class="btn btn-primary hidden" onclick="saveScores()">
+                                💾 Simpan Markah (<span id="scoreCount">0</span>)
                             </button>
                         </div>
+                        <div id="activitiesTable" class="table-container"></div>
                     </div>
+                </div>
 
-                    <!-- Classes List -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas</label>
-                        <div id="classesList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                            <div class="col-span-full text-center text-gray-500 py-4">Loading...</div>
-                        </div>
-                    </div>
-
-                    <!-- Tabs -->
-                    <div id="tabsSection" class="mb-6 flex gap-2 border-b" style="display: none;">
-                        <button onclick="switchTab('students')" id="studentsTab" class="px-6 py-3 font-medium tab-active">
-                            👥 Senarai Murid
-                        </button>
-                        <button onclick="switchTab('activity')" id="activityTab" class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700">
-                            📅 Aktiviti Harian
-                        </button>
-                    </div>
-
-                    <!-- Students Tab Content -->
-                    <div id="studentsContent" style="display: none;">
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tambah Murid</label>
-                            <div class="flex gap-2">
-                                <input
-                                    type="text"
-                                    id="newStudentInput"
-                                    placeholder="Nama murid"
-                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    onkeypress="if(event.key==='Enter') addStudent()"
-                                />
-                                <button
-                                    onclick="addStudent()"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                                >
-                                    ➕ Tambah Murid
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                                Senarai Murid (<span id="studentCount">0</span>)
-                            </h3>
-                            <div id="studentsList" class="space-y-2">
-                                <!-- Students will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Activity Tab Content -->
-                    <div id="activityContent" style="display: none;">
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tambah Aktiviti Baru</label>
-                            <div class="flex gap-2">
-                                <input
-                                    type="text"
-                                    id="newActivityInput"
-                                    placeholder="Nama aktiviti (cth: Ujian Matematik)"
-                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    onkeypress="if(event.key==='Enter') addActivity()"
-                                />
-                                <button
-                                    onclick="addActivity()"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                                >
-                                    ➕ Tambah Aktiviti
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-800">Rekod Aktiviti</h3>
-                                <button
-                                    id="saveScoresBtn"
-                                    onclick="saveScores()"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-lg"
-                                    style="display: none;"
-                                >
-                                    💾 Simpan Markah (<span id="scoreCount">0</span>)
-                                </button>
-                            </div>
-
-                            <div id="activitiesTable" class="overflow-x-auto">
-                                <!-- Activities table will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="emptyState" class="text-center py-12 text-gray-500">
-                        <div class="text-6xl mb-4">👥</div>
-                        <p class="text-lg">Pilih kelas untuk bermula</p>
-                        <p class="text-sm">Klik pada butang kelas di atas</p>
-                    </div>
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <p style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Pilih kelas untuk bermula</p>
+                    <p style="font-size: 14px;">Klik pada butang kelas di atas</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Your Apps Script Web App URL
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbw5AYg8IrfAOiGyD0oNiyHvXQbyT6gC1Fz7W_zquobda6p7LJXP4jWtxnn-9sMciSjbNw/exec';
-        
-        // Global variables
         let selectedClass = null;
         let students = [];
         let activities = [];
         let scores = {};
-        let loading = false;
 
-        // Initialize on page load
         window.onload = function() {
             loadClasses();
         };
 
-        async function callAppsScript(action, data = {}) {
-            if (loading) return null;
-            loading = true;
-            document.getElementById('refreshIcon').classList.add('animate-spin');
-            
-            try {
-                const response = await fetch(webAppUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action, ...data })
-                });
-                const result = await response.json();
-                return result;
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Ralat sambungan: ' + error.message + '\n\nPastikan Apps Script sudah di-deploy dengan betul.');
-                return null;
-            } finally {
-                loading = false;
-                document.getElementById('refreshIcon').classList.remove('animate-spin');
-            }
+        function loadClasses() {
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    const container = document.getElementById('classesList');
+                    if (!result.classes || result.classes.length === 0) {
+                        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #6B7280;">Tiada kelas lagi. Tambah kelas baru untuk bermula.</div>';
+                    } else {
+                        container.innerHTML = result.classes.map(cls => 
+                            `<button class="class-btn ${selectedClass === cls ? 'active' : ''}" onclick="selectClass('${cls.replace(/'/g, "\\'")}')">${cls}</button>`
+                        ).join('');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .getClassesData();
         }
 
-        async function loadClasses() {
-            const result = await callAppsScript('getClasses');
-            if (result && result.classes) {
-                const container = document.getElementById('classesList');
-                if (result.classes.length === 0) {
-                    container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-4">Tiada kelas lagi. Tambah kelas baru untuk bermula.</div>';
-                } else {
-                    container.innerHTML = result.classes.map(cls => `
-                        <button
-                            onclick="selectClass('${cls.replace(/'/g, "\\'")}')"
-                            class="p-3 rounded-lg font-medium transition-all ${selectedClass === cls ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}"
-                        >
-                            ${cls}
-                        </button>
-                    `).join('');
-                }
-            }
-        }
-
-        async function addClass() {
+        function addClass() {
             const input = document.getElementById('newClassInput');
             const className = input.value.trim();
             if (!className) {
                 alert('⚠️ Sila masukkan nama kelas');
                 return;
             }
-            
-            const result = await callAppsScript('addClass', { className });
-            if (result && result.success) {
-                input.value = '';
-                loadClasses();
-                alert('✅ Kelas "' + className + '" berjaya ditambah!');
-            }
+
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    if (result.success) {
+                        input.value = '';
+                        loadClasses();
+                        alert('✅ Kelas "' + className + '" berjaya ditambah!');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .addClassData(className);
         }
 
-        async function selectClass(className) {
+        function selectClass(className) {
             selectedClass = className;
             loadClasses();
-            await loadStudents(className);
-            document.getElementById('tabsSection').style.display = 'flex';
-            document.getElementById('emptyState').style.display = 'none';
+            loadStudents(className);
+            document.getElementById('tabsSection').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
             switchTab('students');
         }
 
-        async function loadStudents(className) {
-            const result = await callAppsScript('getStudents', { className });
-            if (result) {
-                students = result.students || [];
-                activities = result.activities || [];
-                
-                document.getElementById('studentCount').textContent = students.length;
-                
-                const container = document.getElementById('studentsList');
-                if (students.length === 0) {
-                    container.innerHTML = '<div class="text-center text-gray-500 py-4">Tiada murid lagi. Tambah murid baru.</div>';
-                } else {
-                    container.innerHTML = students.map(student => `
-                        <div class="bg-white p-4 rounded-lg flex items-center justify-between hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-4 flex-1">
-                                <span class="font-bold text-blue-600 w-8">${student.bil}</span>
-                                <span class="text-gray-800 flex-1" id="student-${student.row}">${student.name}</span>
-                                <input type="text" id="edit-${student.row}" value="${student.name}" 
-                                    class="hidden flex-1 px-3 py-1 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    onblur="saveStudentEdit(${student.row})"
-                                    onkeypress="if(event.key==='Enter') saveStudentEdit(${student.row})"
-                                />
+        function loadStudents(className) {
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    students = result.students || [];
+                    activities = result.activities || [];
+                    
+                    document.getElementById('studentCount').textContent = students.length;
+                    
+                    const container = document.getElementById('studentsList');
+                    if (students.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6B7280;">Tiada murid lagi. Tambah murid baru.</div>';
+                    } else {
+                        container.innerHTML = students.map(s => `
+                            <div class="student-item">
+                                <span class="student-bil">${s.bil}</span>
+                                <span class="student-name" id="student-${s.row}">${s.name}</span>
+                                <input type="text" id="edit-${s.row}" value="${s.name}" class="hidden" 
+                                    style="flex: 1; padding: 8px; border: 1px solid #3B82F6; border-radius: 6px;"
+                                    onblur="saveStudentEdit(${s.row})"
+                                    onkeypress="if(event.key==='Enter') saveStudentEdit(${s.row})">
+                                <button class="btn btn-primary" style="padding: 8px 12px;" onclick="editStudent(${s.row})">✏️</button>
                             </div>
-                            <button
-                                onclick="editStudent(${student.row})"
-                                class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                            >
-                                ✏️
-                            </button>
-                        </div>
-                    `).join('');
-                }
-                
-                renderActivitiesTable();
-            }
+                        `).join('');
+                    }
+                    
+                    renderActivitiesTable();
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .getStudentsData(className);
         }
 
         function editStudent(row) {
@@ -281,23 +343,28 @@
             input.focus();
         }
 
-        async function saveStudentEdit(row) {
+        function saveStudentEdit(row) {
             const input = document.getElementById('edit-' + row);
             const newName = input.value.trim();
-            if (newName) {
-                const result = await callAppsScript('updateStudent', {
-                    className: selectedClass,
-                    row: row,
-                    newName: newName
-                });
-                if (result && result.success) {
-                    loadStudents(selectedClass);
-                    alert('✅ Nama murid berjaya dikemaskini!');
-                }
-            }
+            if (!newName) return;
+
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    if (result.success) {
+                        loadStudents(selectedClass);
+                        alert('✅ Nama murid berjaya dikemaskini!');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .updateStudentData(selectedClass, row, newName);
         }
 
-        async function addStudent() {
+        function addStudent() {
             const input = document.getElementById('newStudentInput');
             const studentName = input.value.trim();
             if (!studentName) {
@@ -308,19 +375,25 @@
                 alert('⚠️ Sila pilih kelas terlebih dahulu');
                 return;
             }
-            
-            const result = await callAppsScript('addStudent', {
-                className: selectedClass,
-                studentName: studentName
-            });
-            if (result && result.success) {
-                input.value = '';
-                loadStudents(selectedClass);
-                alert('✅ Murid "' + studentName + '" berjaya ditambah!');
-            }
+
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    if (result.success) {
+                        input.value = '';
+                        loadStudents(selectedClass);
+                        alert('✅ Murid "' + studentName + '" berjaya ditambah!');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .addStudentData(selectedClass, studentName);
         }
 
-        async function addActivity() {
+        function addActivity() {
             const input = document.getElementById('newActivityInput');
             const activityName = input.value.trim();
             if (!activityName) {
@@ -331,16 +404,22 @@
                 alert('⚠️ Sila pilih kelas terlebih dahulu');
                 return;
             }
-            
-            const result = await callAppsScript('addActivity', {
-                className: selectedClass,
-                activityName: activityName
-            });
-            if (result && result.success) {
-                input.value = '';
-                loadStudents(selectedClass);
-                alert('✅ Aktiviti "' + activityName + '" berjaya ditambah!');
-            }
+
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    if (result.success) {
+                        input.value = '';
+                        loadStudents(selectedClass);
+                        alert('✅ Aktiviti "' + activityName + '" berjaya ditambah!');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .addActivityData(selectedClass, activityName);
         }
 
         function renderActivitiesTable() {
@@ -348,54 +427,30 @@
             
             if (activities.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-12 text-gray-500">
-                        <div class="text-6xl mb-4">📅</div>
-                        <p class="text-lg">Tiada aktiviti lagi</p>
-                        <p class="text-sm">Tambah aktiviti baru untuk mula merekod prestasi murid</p>
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <p style="font-size: 18px; font-weight: 600;">Tiada aktiviti lagi</p>
+                        <p style="font-size: 14px;">Tambah aktiviti baru untuk mula merekod prestasi murid</p>
                     </div>
                 `;
                 return;
             }
             
-            const headers = activities.map(act => `<th class="px-4 py-3 text-center font-semibold min-w-32">${act}</th>`).join('');
+            const headers = activities.map(act => `<th style="text-align: center; min-width: 120px;">${act}</th>`).join('');
             const rows = students.map(student => {
                 const cells = activities.map((_, idx) => {
-                    const key = `${student.row}-${idx}`;
+                    const key = student.row + '-' + idx;
                     const value = scores[key] !== undefined ? scores[key] : (student.scores[idx] || '');
-                    return `
-                        <td class="px-4 py-3">
-                            <input
-                                type="text"
-                                value="${value}"
-                                onchange="updateScore('${key}', this.value)"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500"
-                                placeholder="0"
-                            />
-                        </td>
-                    `;
+                    return `<td><input type="text" class="score-input" value="${value}" onchange="updateScore('${key}', this.value)" placeholder="0"></td>`;
                 }).join('');
                 
-                return `
-                    <tr class="border-b hover:bg-blue-50 transition-colors">
-                        <td class="px-4 py-3 font-medium text-gray-700">${student.bil}</td>
-                        <td class="px-4 py-3 text-gray-800">${student.name}</td>
-                        ${cells}
-                    </tr>
-                `;
+                return `<tr><td style="font-weight: 600; color: #1F2937;">${student.bil}</td><td style="color: #1F2937;">${student.name}</td>${cells}</tr>`;
             }).join('');
             
             container.innerHTML = `
-                <table class="w-full bg-white rounded-lg">
-                    <thead>
-                        <tr class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                            <th class="px-4 py-3 text-left font-semibold">Bil</th>
-                            <th class="px-4 py-3 text-left font-semibold">Nama</th>
-                            ${headers}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
+                <table>
+                    <thead><tr><th>Bil</th><th>Nama</th>${headers}</tr></thead>
+                    <tbody>${rows}</tbody>
                 </table>
             `;
         }
@@ -404,24 +459,29 @@
             scores[key] = value;
             const count = Object.keys(scores).length;
             document.getElementById('scoreCount').textContent = count;
-            document.getElementById('saveScoresBtn').style.display = count > 0 ? 'flex' : 'none';
+            document.getElementById('saveScoresBtn').classList.toggle('hidden', count === 0);
         }
 
-        async function saveScores() {
+        function saveScores() {
             if (Object.keys(scores).length === 0) return;
-            
-            const result = await callAppsScript('saveScores', {
-                className: selectedClass,
-                scores: scores
-            });
-            
-            if (result && result.success) {
-                scores = {};
-                document.getElementById('scoreCount').textContent = '0';
-                document.getElementById('saveScoresBtn').style.display = 'none';
-                alert('✅ Markah berjaya disimpan ke Google Sheet!');
-                loadStudents(selectedClass);
-            }
+
+            showSpinner();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideSpinner();
+                    if (result.success) {
+                        scores = {};
+                        document.getElementById('scoreCount').textContent = '0';
+                        document.getElementById('saveScoresBtn').classList.add('hidden');
+                        alert('✅ Markah berjaya disimpan ke Google Sheet!');
+                        loadStudents(selectedClass);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideSpinner();
+                    alert('❌ Ralat: ' + error.message);
+                })
+                .saveScoresData(selectedClass, scores);
         }
 
         function switchTab(tab) {
@@ -431,28 +491,32 @@
             const activityContent = document.getElementById('activityContent');
             
             if (tab === 'students') {
-                studentsTab.classList.add('tab-active', 'text-blue-600');
-                studentsTab.classList.remove('text-gray-500');
-                activityTab.classList.remove('tab-active', 'text-blue-600');
-                activityTab.classList.add('text-gray-500');
-                studentsContent.style.display = 'block';
-                activityContent.style.display = 'none';
+                studentsTab.classList.add('active');
+                activityTab.classList.remove('active');
+                studentsContent.classList.remove('hidden');
+                activityContent.classList.add('hidden');
             } else {
-                activityTab.classList.add('tab-active', 'text-blue-600');
-                activityTab.classList.remove('text-gray-500');
-                studentsTab.classList.remove('tab-active', 'text-blue-600');
-                studentsTab.classList.add('text-gray-500');
-                activityContent.style.display = 'block';
-                studentsContent.style.display = 'none';
+                activityTab.classList.add('active');
+                studentsTab.classList.remove('active');
+                activityContent.classList.remove('hidden');
+                studentsContent.classList.add('hidden');
             }
         }
 
-        function refreshAll() {
+        function refreshData() {
             if (selectedClass) {
                 loadStudents(selectedClass);
             } else {
                 loadClasses();
             }
+        }
+
+        function showSpinner() {
+            document.getElementById('refreshIcon').classList.add('spinner');
+        }
+
+        function hideSpinner() {
+            document.getElementById('refreshIcon').classList.remove('spinner');
         }
     </script>
 </body>
